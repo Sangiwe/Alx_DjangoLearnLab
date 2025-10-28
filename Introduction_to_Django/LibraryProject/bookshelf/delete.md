@@ -1,14 +1,15 @@
+```markdown
+# Delete a Book instance
+
 ```python
 from bookshelf.models import Book
 
-# Retrieve the updated book
-book = Book.objects.get(title="Nineteen Eighty-Four")
-
-# Delete the book
+# Retrieve the book and delete it
+book = Book.objects.get(id=1)
 book.delete()
 
-# Confirm deletion
-print(Book.objects.all())
+# Verify deletion by retrieving all books
+Book.objects.all()
+
 # Expected Output:
 # <QuerySet []>
-```
