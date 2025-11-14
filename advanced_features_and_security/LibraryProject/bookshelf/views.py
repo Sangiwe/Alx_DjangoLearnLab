@@ -3,6 +3,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from bookshelf.models import Book
 from bookshelf.forms import BookForm  # if you have forms
 
+# View to list books with permission check
+@permission_required('bookshelf.can_view', raise_exception=True)
+def book_list(request):
+    books = Book.objects.all()
+    return render(request, 'bookshelf/book_list.html', {'books': books})
+
 @permission_required('bookshelf.can_create', raise_exception=True)
 def add_book(request):
     if request.method == 'POST':
