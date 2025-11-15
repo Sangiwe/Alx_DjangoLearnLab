@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,28 @@ SECRET_KEY = 'django-insecure-p7@zwjgi-@cfqd4-^u2q&_-mn9&p2l#)rtbc6gm+xb^lm^wbq8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-production-domain.com']
 
+# Secret key from environment
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-for-local-use-only')
+
+# Browser XSS filter / content sniffing and clickjacking protection
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'  # or 'SAMEORIGIN' if embedded in iframe intentionally
+
+# Cookies: set to True in production (HTTPS). For local dev if you don't have HTTPS set to False.
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# HSTS (only enable in production with HTTPS)
+SECURE_HSTS_SECONDS = 31536000  # one year — enable only on production over HTTPS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Other recommended settings
+SECURE_SSL_REDIRECT = False  # set True in production to force HTTPS
+# If you enable SECURE_SSL_REDIRECT locally you need HTTPS server; keep False for local dev
 
 # Application definition
 
@@ -39,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf',
     'relationship_app',
+    'csp'
 ]
 
 MIDDLEWARE = [
@@ -49,7 +71,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')  # if using Google fonts
+CSP_IMG_SRC = ("'self'", 'data:')
+CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com')
 
 ROOT_URLCONF = 'LibraryProject.urls'
 
