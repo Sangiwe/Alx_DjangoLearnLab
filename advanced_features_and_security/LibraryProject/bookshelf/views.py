@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from bookshelf.models import Book
 from bookshelf.forms import BookForm  # if you have forms
+from .forms import ExampleForm
 
 # View to list books with permission check
 @permission_required('bookshelf.can_view', raise_exception=True)
