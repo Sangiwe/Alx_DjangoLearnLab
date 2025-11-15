@@ -49,6 +49,23 @@ SECURE_HSTS_PRELOAD = True
 SECURE_SSL_REDIRECT = False  # set True in production to force HTTPS
 # If you enable SECURE_SSL_REDIRECT locally you need HTTPS server; keep False for local dev
 
+# Cookies only sent over HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# ============================
+# 🔒 SECURITY: SECURE HEADERS
+# ============================
+
+# Prevent content-type sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable browser XSS filter
+SECURE_BROWSER_XSS_FILTER = True
+
+# Prevent clickjacking
+X_FRAME_OPTIONS = "DENY"
+
 # Application definition
 
 INSTALLED_APPS = [
