@@ -1,3 +1,9 @@
+from rest_framework.test import APITestCase
+
+class TestSample(APITestCase):
+    def test_basic(self):
+        self.assertEqual(1, 1)
+
 
 ### ▶️ How to Run Tests
 1. Activate virtual environment
