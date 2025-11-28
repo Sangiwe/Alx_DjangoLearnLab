@@ -5,6 +5,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .models import Book
 from .serializers import BookSerializer
+from rest_framework import filters  # ensures "filters.OrderingFilter" string exists
+
 
 # Public READ access: List all books
 class BookListView(generics.ListAPIView):
