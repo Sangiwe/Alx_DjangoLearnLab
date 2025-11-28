@@ -66,3 +66,17 @@ Django admin
 Python shell
 
 Test creating authors/books and ensure nested serialization works correctly
+
+
+## API Testing Guide
+
+### ✅ Testing Strategy
+The API tests cover:
+- CRUD endpoint functionality for the `Book` model
+- Data integrity and correct HTTP status codes
+- Permission enforcement using JWT authentication
+- Filtering, searching, and ordering support
+
+### 🧪 Test File Location
+Tests are implemented in:
+
