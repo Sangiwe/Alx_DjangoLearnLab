@@ -9,12 +9,25 @@
 <body>
     <header>
         <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'posts' %}">Blog Posts</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
+          <!-- inside header or nav -->
+          {% if user.is_authenticated %}
+            Hello, {{ user.username }} |
+            <a href="{% url 'profile' %}">Profile</a> |
+            <a href="{% url 'logout' %}">Logout</a>
+          {% else %}
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'register' %}">Register</a>
+          {% endif %}
+
+          <!-- Add messages display (just below nav) -->
+          {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+                <li class="message {{ message.tags }}">{{ message }}</li>
+              {% endfor %}
             </ul>
+          {% endif %}
+
         </nav>
     </header>
 

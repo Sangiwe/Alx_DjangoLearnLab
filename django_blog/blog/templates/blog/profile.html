@@ -1,0 +1,23 @@
+{% extends "blog/base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>Profile</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <fieldset>
+    <legend>User info</legend>
+    {{ user_form.as_p }}
+  </fieldset>
+
+  {% if profile_form %}
+  <fieldset>
+    <legend>Profile</legend>
+    {{ profile_form.as_p }}
+  </fieldset>
+  {% endif %}
+
+  <button type="submit">Save changes</button>
+</form>
+{% endblock %}
