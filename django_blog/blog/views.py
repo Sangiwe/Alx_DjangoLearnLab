@@ -4,6 +4,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from .models import Post
+from .forms import PostForm
 
 def register(request):
     """
@@ -64,3 +70,52 @@ def profile(request):
         'profile_form': profile_form
     }
     return render(request, 'blog/profile.html', context)
+
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'  # blog/templates/blog/post_list.html
+    context_object_name = 'posts'
+    paginate_by = 10
+    ordering = ['-published_date']
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    # redirect to the detail view after successful creation
+    # success_url will default to get_absolute_url if you implement it, else override get_success_url
+
+    def form_valid(self, form):
+        # set the author to the logged in user before saving
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+
+    def form_valid(self, form):
+        # ensure author stays the same
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def test_func(self):
+        # Only allow the original author to update
+        post = self.get_object()
+        return self.request.user == post.author
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = reverse_lazy('post-list')
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author

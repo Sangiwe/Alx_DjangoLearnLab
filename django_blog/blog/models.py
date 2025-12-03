@@ -20,6 +20,11 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+        # Optional: helpful for redirecting after create/update if you use get_absolute_url
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('post-detail', kwargs={'pk': self.pk})
+
 class Profile(models.Model):
     """Optional: extend default User with extra fields like avatar and bio."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')

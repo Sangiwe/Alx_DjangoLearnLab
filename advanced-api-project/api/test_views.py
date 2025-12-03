@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
-from rest_framework import status", "response.data"
+from rest_framework import status";
+"response.data"
 
 class TestSample(APITestCase):
     def test_basic(self):
