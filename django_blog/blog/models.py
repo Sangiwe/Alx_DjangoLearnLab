@@ -1,6 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
+
+class Tag(models.Model):
+    """
+    Simple Tag model. Tag names are unique (case-insensitive by convention).
+    """
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=60, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+        
 # The Post model represents a blog post created by a registered user.
 # A single user can create many posts — this is a One-to-Many relationship.
 class Post(models.Model):
@@ -16,6 +34,8 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         null=False
     )
+
+    tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
 
     def __str__(self):
         return self.title

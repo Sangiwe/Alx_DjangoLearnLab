@@ -14,6 +14,9 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from .models import Comment, Post
 from .forms import CommentForm
+from django.db.models import Q
+from django.views.generic import ListView
+from .models import Tag
 
 
 def register(request):
@@ -168,3 +171,35 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.author
+
+
+# View to list posts by tag
+class PostsByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        # find tag by slug
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        return tag.posts.order_by('-published_date').all()
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['tag'] = get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
+        return ctx
+
+# Search view (function-based for simplicity)
+def search_posts(request):
+    query = request.GET.get('q', '').strip()
+    results = Post.objects.none()
+    if query:
+        # search title, content, and tag name (case-insensitive)
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct().order_by('-published_date')
+    return render(request, 'blog/search_results.html', {'query': query, 'posts': results})

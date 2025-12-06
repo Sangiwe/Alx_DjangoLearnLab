@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
-from .models import Post
+from .models import Post, Tag
 from .models import Comment
 
 
@@ -33,17 +33,45 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
-    """
-    ModelForm for creating and updating Post objects.
-    The author is set in the view (request.user) so it's excluded from the form.
-    """
+    # A text field where users enter tags as comma-separated names.
+    tag_list = forms.CharField(
+        required=False,
+        help_text='Enter comma-separated tags (e.g. django, python, tips)',
+        widget=forms.TextInput(attrs={'placeholder': 'tags: django, python'})
+    )
+
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'tag_list']
         widgets = {
-            'title': forms.TextInput(attrs={'placeholder': 'Post title', 'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'placeholder': 'Write your post here...', 'class': 'form-control', 'rows': 10}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows':10}),
         }
+
+    def __init__(self, *args, **kwargs):
+        # If editing an existing instance, prepopulate tag_list
+        instance = kwargs.get('instance', None)
+        super().__init__(*args, **kwargs)
+        if instance:
+            self.fields['tag_list'].initial = ', '.join([t.name for t in instance.tags.all()])
+
+    def save(self, commit=True, *args, **kwargs):
+        # Save post first, then handle tags
+        post = super().save(commit=commit)
+        tag_names = self.cleaned_data.get('tag_list', '')
+        # Clean up tag names
+        tag_names = [t.strip() for t in tag_names.split(',') if t.strip()]
+        # Clear existing tags (for updates)
+        post.tags.clear()
+        for name in tag_names:
+            tag_obj, created = Tag.objects.get_or_create(name__iexact=name, defaults={'name': name})
+            # In case get_or_create by case-insensitive isn't supported directly, fallback:
+            if created is False and tag_obj is None:
+                tag_obj = Tag.objects.filter(name__iexact=name).first()
+                if not tag_obj:
+                    tag_obj = Tag.objects.create(name=name)
+            post.tags.add(tag_obj)
+        return post
 
 
 class CommentForm(forms.ModelForm):
