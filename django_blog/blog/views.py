@@ -140,8 +140,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     # we won't use success_url because we redirect to post detail
 
     def form_valid(self, form):
-        post_pk = self.kwargs.get('post_pk')
-        post = get_object_or_404(Post, pk=post_pk)
+        post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
         form.instance.post = post
         form.instance.author = self.request.user
         response = super().form_valid(form)
