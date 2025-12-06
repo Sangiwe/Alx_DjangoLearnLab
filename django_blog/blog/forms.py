@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
 from .models import Post
+from .models import Comment
 
 
 class UserRegisterForm(UserCreationForm):
@@ -43,3 +44,31 @@ class PostForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'placeholder': 'Post title', 'class': 'form-control'}),
             'content': forms.Textarea(attrs={'placeholder': 'Write your post here...', 'class': 'form-control', 'rows': 10}),
         }
+
+
+class CommentForm(forms.ModelForm):
+    """
+    Form used to create or edit comments.
+    Only the content is editable by users; post & author are set in view.
+    """
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'placeholder': 'Write your comment here...',
+                'rows': 4,
+                'class': 'form-control'
+            }),
+        }
+        labels = {
+            'content': ''
+        }
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').strip()
+        if not content:
+            raise forms.ValidationError("Comment cannot be empty.")
+        if len(content) > 2000:
+            raise forms.ValidationError("Comment is too long (max 2000 characters).")
+        return content
