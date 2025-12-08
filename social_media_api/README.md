@@ -34,3 +34,20 @@ This backend supports user registration, authentication, creating posts, comment
 ```bash
 git clone <your_repo_url>
 cd social_media_api
+
+
+## Follow & Feed
+
+### Follow a User
+**POST** `/api/accounts/follow/<user_id>/`  
+Requires authentication.
+
+### Unfollow a User
+**POST** `/api/accounts/unfollow/<user_id>/`  
+Requires authentication.
+
+### Get your Feed
+**GET** `/api/feed/`  
+Returns posts from users you follow, newest first. Requires authentication.
+
+Example:
