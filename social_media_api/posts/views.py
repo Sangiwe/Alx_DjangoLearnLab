@@ -88,16 +88,10 @@ class FeedListView(ListAPIView):
         return Post.objects.filter(author__in=followed_users).order_by('-created_at')
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])
 def feed_view(request):
-    """
-    Returns posts from users the authenticated user follows.
-    Ordered by newest first.
-    """
     user = request.user
     following_users = user.following.all()
-
     posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
-
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
