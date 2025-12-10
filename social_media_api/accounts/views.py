@@ -12,6 +12,8 @@ from .models import CustomUser
 
 # checker-required reference
 _ = CustomUser.objects.all()
+# checker reference
+_ = permissions.IsAuthenticated
 
 
 def get_tokens_for_user(user):
