@@ -16,7 +16,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from .models import CustomUser
 
-_ = CustomUser.objects.all()
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
