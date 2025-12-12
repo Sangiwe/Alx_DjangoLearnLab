@@ -14,8 +14,12 @@ from .serializers import PostSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
-from .models import CustomUser
+#from .models import CustomUser
 from rest_framework.decorators import api_view, permission_classes
+from .models import Like
+from .serializers import LikeSerializer
+from django.shortcuts import get_object_or_404
+
 
 # checker-required references
 _ = permissions.IsAuthenticated
@@ -95,3 +99,26 @@ def feed_view(request):
     posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    user = request.user
+    like, created = Like.objects.get_or_create(user=user, post=post)
+    if not created:
+        return Response({'detail': 'Already liked'}, status=status.HTTP_200_OK)
+    # optionally: create notification (we also create via signal)
+    serializer = LikeSerializer(like)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unlike_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    user = request.user
+    deleted, _ = Like.objects.filter(user=user, post=post).delete()
+    if deleted:
+        return Response({'detail': 'Unliked'}, status=status.HTTP_200_OK)
+    return Response({'detail': 'Was not liked'}, status=status.HTTP_400_BAD_REQUEST)

@@ -50,4 +50,26 @@ Requires authentication.
 **GET** `/api/feed/`  
 Returns posts from users you follow, newest first. Requires authentication.
 
-Example:
+
+## Likes & Notifications
+
+### Like a post
+POST /api/posts/<post_id>/like/
+Auth required.
+
+### Unlike a post
+POST /api/posts/<post_id>/unlike/
+
+### Get notifications
+GET /api/notifications/
+Auth required. Returns user's notifications ordered newest first; unread appear first.
+
+### Mark notification read
+POST /api/notifications/<id>/mark-read/
+Auth required. Marks a single notification as read.
+
+Notifications are generated:
+- when someone likes your post
+- when someone comments on your post
+- when someone follows you (created in accounts.follow_user)
+
