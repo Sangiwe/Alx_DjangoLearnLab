@@ -19,6 +19,7 @@ from rest_framework.decorators import api_view, permission_classes
 from .models import Like
 from .serializers import LikeSerializer
 from django.shortcuts import get_object_or_404
+from notifications.models import Notification
 
 
 # checker-required references
@@ -109,9 +110,19 @@ def like_post(request, pk):
     like, created = Like.objects.get_or_create(user=user, post=post)
     if not created:
         return Response({'detail': 'Already liked'}, status=status.HTTP_200_OK)
-    # optionally: create notification (we also create via signal)
+
+    # Create notification for post author
+    if post.author != user:  # don't notify self
+        Notification.objects.create(
+            recipient=post.author,
+            actor=user,
+            verb='liked',
+            target=post
+        )
+
     serializer = LikeSerializer(like)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
