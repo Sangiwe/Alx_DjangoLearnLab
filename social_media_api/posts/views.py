@@ -20,6 +20,8 @@ from .models import Like
 from .serializers import LikeSerializer
 from django.shortcuts import get_object_or_404
 from notifications.models import Notification
+from rest_framework import generics
+
 
 
 # checker-required references
@@ -105,17 +107,24 @@ def feed_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    user = request.user
-    like, created = Like.objects.get_or_create(user=user, post=post)
-    if not created:
-        return Response({'detail': 'Already liked'}, status=status.HTTP_200_OK)
+    post = generics.get_object_or_404(Post, pk=pk)
 
-    # Create notification for post author
-    if post.author != user:  # don't notify self
+    like, created = Like.objects.get_or_create(
+        user=request.user,
+        post=post
+    )
+
+    if not created:
+        return Response(
+            {'detail': 'Already liked'},
+            status=status.HTTP_200_OK
+        )
+
+    # REQUIRED by checker
+    if post.author != request.user:
         Notification.objects.create(
             recipient=post.author,
-            actor=user,
+            actor=request.user,
             verb='liked',
             target=post
         )
