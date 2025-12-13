@@ -136,9 +136,14 @@ def like_post(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def unlike_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    user = request.user
-    deleted, _ = Like.objects.filter(user=user, post=post).delete()
+    post = generics.get_object_or_404(Post, pk=pk)
+
+    deleted, _ = Like.objects.filter(
+        user=request.user,
+        post=post
+    ).delete()
+
     if deleted:
         return Response({'detail': 'Unliked'}, status=status.HTTP_200_OK)
+
     return Response({'detail': 'Was not liked'}, status=status.HTTP_400_BAD_REQUEST)
