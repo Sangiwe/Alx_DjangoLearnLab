@@ -73,3 +73,26 @@ Notifications are generated:
 - when someone comments on your post
 - when someone follows you (created in accounts.follow_user)
 
+# Deployment Documentation
+
+## Hosting Platform
+Render (https://render.com)
+
+## Deployment Steps
+1. Configure environment variables
+2. Install dependencies
+3. Run migrations
+4. Collect static files
+5. Start Gunicorn server
+
+## Production Settings
+- DEBUG=False
+- SSL enforced
+- Secure cookies enabled
+
+## Live URL
+https://your-app-name.onrender.com
+
+## Maintenance
+- Regular dependency updates
+- Log monitoring via Render dashboard
